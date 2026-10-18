@@ -1,0 +1,10 @@
+<Application x:Class="PulseSlide.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml">
+  <Application.Resources>
+    <SolidColorBrush x:Key="AccentBrush" Color="#FF35E6FF"/>
+    <SolidColorBrush x:Key="PanelBrush" Color="#FF151923"/>
+    <SolidColorBrush x:Key="TextBrush" Color="#FFF4F7FF"/>
+  </Application.Resources>
+</Application>
