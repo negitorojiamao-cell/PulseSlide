@@ -8,8 +8,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>PulseSlide</AssemblyName>
     <RootNamespace>PulseSlide</RootNamespace>
+    <ApplicationIcon>Assets\PulseSlide.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NAudio" Version="2.2.1" />
+    <Resource Include="Assets\PulseSlide.ico" />
   </ItemGroup>
 </Project>
