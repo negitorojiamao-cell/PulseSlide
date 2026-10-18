@@ -1,0 +1,28 @@
+name: Build PulseSlide for Windows
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Publish self-contained single-file EXE
+        run: dotnet publish PulseSlide.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o publish
+      - name: Upload EXE artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PulseSlide-Windows-x64
+          path: publish/PulseSlide.exe
+          if-no-files-found: error
