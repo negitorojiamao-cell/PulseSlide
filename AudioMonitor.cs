@@ -1,3 +1,4 @@
+using System.Threading;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 
@@ -6,8 +7,8 @@ namespace PulseSlide;
 public sealed class AudioMonitor : IDisposable
 {
     private WasapiLoopbackCapture? _capture;
-    private volatile double _level;
-    public double Level => _level;
+    private double _level;
+    public double Level => Volatile.Read(ref _level);
 
     public void Start()
     {
@@ -24,14 +25,14 @@ public sealed class AudioMonitor : IDisposable
                     float sample = BitConverter.ToSingle(bytes, i * 4);
                     sum += sample * sample;
                 }
-                _level = samples > 0 ? Math.Sqrt(sum / samples) : 0;
+
+                Volatile.Write(ref _level, samples > 0 ? Math.Sqrt(sum / samples) : 0);
             };
-            _capture.RecordingStopped += (_, _) => { };
             _capture.StartRecording();
         }
         catch
         {
-            _level = 0;
+            Volatile.Write(ref _level, 0);
         }
     }
 
