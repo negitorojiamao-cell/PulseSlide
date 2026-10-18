@@ -1,6 +1,5 @@
 using System;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 
@@ -13,7 +12,6 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromMilliseconds(35) };
     private DateTime _lastLoud = DateTime.MinValue;
     private DateTime _testUntil = DateTime.MinValue;
-    private double _level;
     private bool _shown;
 
     public MainWindow()
@@ -30,14 +28,22 @@ public partial class MainWindow : Window
 
     private void UpdateAudio()
     {
-        _level = _audio.Level;
-        var threshold = 0.0015 / Math.Max(1, SensitivitySlider.Value);
-        if (_level > threshold) _lastLoud = DateTime.UtcNow;
-        bool active = DateTime.UtcNow < _testUntil || DateTime.UtcNow - _lastLoud < TimeSpan.FromSeconds(DelaySlider.Value);
+        double level = _audio.Level;
+        double threshold = 0.0015 / Math.Max(1, SensitivitySlider.Value);
+        if (level > threshold) _lastLoud = DateTime.UtcNow;
+        bool testing = DateTime.UtcNow < _testUntil;
+        bool active = testing || DateTime.UtcNow - _lastLoud < TimeSpan.FromSeconds(DelaySlider.Value);
         if (active)
         {
             if (!_shown) { _visualizer.Show(); _shown = true; }
-            _visualizer.SetLevel(Math.Clamp(_level * SensitivitySlider.Value * 45, 0, 1), StyleBox.SelectedIndex);
+            _visualizer.SetAudioData(
+                level,
+                _audio.Waveform,
+                _audio.Bands,
+                _audio.BassPulse,
+                testing,
+                StyleBox.SelectedIndex,
+                SensitivitySlider.Value);
             _visualizer.SetVisible(true);
         }
         else if (_shown)
@@ -69,7 +75,7 @@ public partial class MainWindow : Window
         _testUntil = DateTime.UtcNow.AddSeconds(4);
         _lastLoud = DateTime.UtcNow;
         if (!_shown) { _visualizer.Show(); _shown = true; }
-        _visualizer.SetLevel(0.85, StyleBox.SelectedIndex);
+        _visualizer.SetAudioData(0.35, Array.Empty<float>(), Array.Empty<float>(), 0.8, true, StyleBox.SelectedIndex, SensitivitySlider.Value);
         _visualizer.SetVisible(true);
     }
 }
