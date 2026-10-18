@@ -12,7 +12,6 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromMilliseconds(35) };
     private DateTime _lastLoud = DateTime.MinValue;
     private DateTime _testUntil = DateTime.MinValue;
-    private bool _shown;
 
     public MainWindow()
     {
@@ -35,7 +34,10 @@ public partial class MainWindow : Window
         bool active = testing || DateTime.UtcNow - _lastLoud < TimeSpan.FromSeconds(DelaySlider.Value);
         if (active)
         {
-            if (!_shown) { _visualizer.Show(); _shown = true; }
+            // The visualizer hides its WPF window after sliding out. Check the actual
+            // window visibility each time, instead of keeping a stale "shown" flag.
+            if (!_visualizer.IsVisible) _visualizer.Show();
+
             _visualizer.SetAudioData(
                 level,
                 _audio.Waveform,
@@ -46,7 +48,7 @@ public partial class MainWindow : Window
                 SensitivitySlider.Value);
             _visualizer.SetVisible(true);
         }
-        else if (_shown)
+        else if (_visualizer.IsVisible)
         {
             _visualizer.SetVisible(false);
         }
@@ -74,7 +76,7 @@ public partial class MainWindow : Window
         ApplySettings();
         _testUntil = DateTime.UtcNow.AddSeconds(4);
         _lastLoud = DateTime.UtcNow;
-        if (!_shown) { _visualizer.Show(); _shown = true; }
+        if (!_visualizer.IsVisible) _visualizer.Show();
         _visualizer.SetAudioData(0.35, Array.Empty<float>(), Array.Empty<float>(), 0.8, true, StyleBox.SelectedIndex, SensitivitySlider.Value);
         _visualizer.SetVisible(true);
     }
